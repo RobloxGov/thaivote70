@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าลงคะแนน</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>ลงคะแนนเลือกตั้ง</h1>
+    <form id="voteForm">
+        <div>
+            <h2>เลือกเขตเลือกตั้ง:</h2>
+            <input type="radio" id="district1" name="district" value="เขต 1" required>
+            <label for="district1">เขต 1</label><br>
+
+            <input type="radio" id="district2" name="district" value="เขต 2">
+            <label for="district2">เขต 2</label><br>
+            <!-- เพิ่มเขตอื่น ๆ ตามต้องการ -->
+        </div>
+
+        <div>
+            <h2>เลือกผู้สมัคร:</h2>
+            <input type="radio" id="candidate1" name="candidate" value="ผู้สมัคร 1" required>
+            <label for="candidate1">ผู้สมัคร 1</label><br>
+
+            <input type="radio" id="candidate2" name="candidate" value="ผู้สมัคร 2">
+            <label for="candidate2">ผู้สมัคร 2</label><br>
+            <!-- เพิ่มผู้สมัครอื่น ๆ ตามต้องการ -->
+        </div>
+
+        <button type="submit" class="btn">ลงคะแนน</button>
+    </form>
+</div>
+
+<script>
+const webAppUrl = 'https://script.google.com/macros/s/AKfycby0K3c8lbQGRTIjqGwSbvusubvML59iepD9MPf85TkRRNEYtv0saYSVQCFxeO55awY/exec';
+const username = localStorage.getItem('username');
+const password = localStorage.getItem('password');
+
+document.getElementById('voteForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const voteData = {
+        username: username,
+        password: password,
+        voteData: {
+            district: document.querySelector('input[name="district"]:checked').value,
+            candidate: document.querySelector('input[name="candidate"]:checked').value
+        }
+    };
+
+    fetch(webAppUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(voteData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('ลงคะแนนเรียบร้อยแล้ว');
+            window.location.href = "main.html"; // กลับไปที่หน้าหลักหลังจากลงคะแนนเสร็จ
+        } else {
+            alert('เกิดข้อผิดพลาดในการลงคะแนน: ' + data.message);
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการลงคะแนน');
+    });
+});
+</script>
+
+</body>
+</html>
