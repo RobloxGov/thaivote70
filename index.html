@@ -3,40 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบเลือกตั้งออนไลน์</title>
+    <title>เข้าสู่ระบบ</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             padding: 20px;
         }
-        h1 {
-            color: #333;
-        }
         .container {
             background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            max-width: 400px;
             margin: 0 auto;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
+        h1 {
+            color: #333;
         }
         input[type="text"], input[type="password"] {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
-        }
-        .district, .candidate {
-            margin-bottom: 10px;
         }
         .btn {
             background-color: #4CAF50;
@@ -54,66 +44,27 @@
 <body>
 
 <div class="container">
-    <h1>ระบบเลือกตั้งออนไลน์</h1>
+    <h1>เข้าสู่ระบบ</h1>
+    <form id="loginForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" placeholder="Discord Username" required>
 
-    <form id="voteForm">
-        <!-- ส่วนล็อกอิน -->
-        <div class="form-group">
-            <label for="username">ชื่อผู้ใช้ (Discord Username):</label>
-            <input type="text" id="username" name="username" required>
-        </div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Discord UID" required>
 
-        <div class="form-group">
-            <label for="password">รหัสผ่าน (Discord UID):</label>
-            <input type="password" id="password" name="password" required>
-        </div>
-
-        <!-- ส่วนเลือกตั้ง -->
-        <div class="form-group district">
-            <label>เลือกเขตเลือกตั้ง:</label>
-            <input type="radio" id="district1" name="district" value="เขต 1" required>
-            <label for="district1">เขต 1</label><br>
-
-            <input type="radio" id="district2" name="district" value="เขต 2">
-            <label for="district2">เขต 2</label><br>
-
-            <input type="radio" id="district3" name="district" value="เขต 3">
-            <label for="district3">เขต 3</label><br>
-            <!-- เพิ่มเขตอื่น ๆ ตามต้องการ -->
-        </div>
-
-        <div class="form-group candidate">
-            <label>เลือกผู้สมัคร:</label>
-            <input type="radio" id="candidate1" name="candidate" value="ผู้สมัคร 1" required>
-            <label for="candidate1">ผู้สมัคร 1</label><br>
-
-            <input type="radio" id="candidate2" name="candidate" value="ผู้สมัคร 2">
-            <label for="candidate2">ผู้สมัคร 2</label><br>
-
-            <input type="radio" id="candidate3" name="candidate" value="ผู้สมัคร 3">
-            <label for="candidate3">ผู้สมัคร 3</label><br>
-            <!-- เพิ่มผู้สมัครอื่น ๆ ตามต้องการ -->
-        </div>
-
-        <button type="submit" class="btn">ลงคะแนน</button>
+        <button type="submit" class="btn">เข้าสู่ระบบ</button>
     </form>
 </div>
 
 <script>
-// URL ของ Web App ที่ได้จากการ Deploy Google Apps Script
-const webAppUrl = 'https://script.google.com/macros/s/your-webapp-id/exec';
+const webAppUrl = 'https://script.google.com/macros/s/AKfycby0K3c8lbQGRTIjqGwSbvusubvML59iepD9MPf85TkRRNEYtv0saYSVQCFxeO55awY/exec';
 
-// เมื่อผู้ใช้กดปุ่มลงคะแนน
-document.getElementById('voteForm').addEventListener('submit', function(event) {
+document.getElementById('loginForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const voteData = {
+    const loginData = {
         username: document.getElementById('username').value,
-        password: document.getElementById('password').value,
-        voteData: {
-            district: document.querySelector('input[name="district"]:checked').value,
-            candidate: document.querySelector('input[name="candidate"]:checked').value
-        }
+        password: document.getElementById('password').value
     };
 
     fetch(webAppUrl, {
@@ -121,20 +72,19 @@ document.getElementById('voteForm').addEventListener('submit', function(event) {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(voteData),
+        body: JSON.stringify(loginData),
     })
     .then(response => response.json())
     .then(data => {
-        console.log('Success:', data);
         if (data.status === 'success') {
-            alert('ลงคะแนนเรียบร้อยแล้ว');
+            window.location.href = "main.html"; // ถ้าล็อกอินสำเร็จ ไปหน้าหลัก
         } else {
             alert('ล็อกอินไม่สำเร็จ: ' + data.message);
         }
     })
     .catch((error) => {
         console.error('Error:', error);
-        alert('เกิดข้อผิดพลาดในการลงคะแนน');
+        alert('เกิดข้อผิดพลาดในการเข้าสู่ระบบ');
     });
 });
 </script>
