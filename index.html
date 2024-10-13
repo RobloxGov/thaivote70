@@ -1,46 +1,143 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>คะแนนสะสมพรรค</title>
+    <title>ระบบเลือกตั้งออนไลน์</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        #partyLogo { width: 100px; height: 100px; margin-top: 20px; }
-        #score { font-size: 2em; margin-top: 20px; }
-        #chooseParty { margin: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .district, .candidate {
+            margin-bottom: 10px;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
-    <h1 id="headerTitle">กรุณาเลือกพรรค</h1>
-    <img id="partyLogo" src="" alt="Party Logo" style="display:none;">
-    <div id="score">คะแนน: 0</div>
-    <div id="chooseParty">
-        <button onclick="selectParty('Party A', 'logoA.png')">เลือกพรรค A</button>
-        <button onclick="selectParty('Party B', 'logoB.png')">เลือกพรรค B</button>
-    </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        let socket = io();
-        let selectedParty = null;
+<div class="container">
+    <h1>ระบบเลือกตั้งออนไลน์</h1>
 
-        function selectParty(partyName, logoSrc) {
-            selectedParty = partyName;
-            document.getElementById('headerTitle').innerText = `พรรค: ${partyName}`;
-            document.getElementById('partyLogo').src = logoSrc;
-            document.getElementById('partyLogo').style.display = 'block';
+    <form id="voteForm">
+        <!-- ส่วนล็อกอิน -->
+        <div class="form-group">
+            <label for="username">ชื่อผู้ใช้ (Discord Username):</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">รหัสผ่าน (Discord UID):</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+
+        <!-- ส่วนเลือกตั้ง -->
+        <div class="form-group district">
+            <label>เลือกเขตเลือกตั้ง:</label>
+            <input type="radio" id="district1" name="district" value="เขต 1" required>
+            <label for="district1">เขต 1</label><br>
+
+            <input type="radio" id="district2" name="district" value="เขต 2">
+            <label for="district2">เขต 2</label><br>
+
+            <input type="radio" id="district3" name="district" value="เขต 3">
+            <label for="district3">เขต 3</label><br>
+            <!-- เพิ่มเขตอื่น ๆ ตามต้องการ -->
+        </div>
+
+        <div class="form-group candidate">
+            <label>เลือกผู้สมัคร:</label>
+            <input type="radio" id="candidate1" name="candidate" value="ผู้สมัคร 1" required>
+            <label for="candidate1">ผู้สมัคร 1</label><br>
+
+            <input type="radio" id="candidate2" name="candidate" value="ผู้สมัคร 2">
+            <label for="candidate2">ผู้สมัคร 2</label><br>
+
+            <input type="radio" id="candidate3" name="candidate" value="ผู้สมัคร 3">
+            <label for="candidate3">ผู้สมัคร 3</label><br>
+            <!-- เพิ่มผู้สมัครอื่น ๆ ตามต้องการ -->
+        </div>
+
+        <button type="submit" class="btn">ลงคะแนน</button>
+    </form>
+</div>
+
+<script>
+// URL ของ Web App ที่ได้จากการ Deploy Google Apps Script
+const webAppUrl = 'https://script.google.com/macros/s/your-webapp-id/exec';
+
+// เมื่อผู้ใช้กดปุ่มลงคะแนน
+document.getElementById('voteForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const voteData = {
+        username: document.getElementById('username').value,
+        password: document.getElementById('password').value,
+        voteData: {
+            district: document.querySelector('input[name="district"]:checked').value,
+            candidate: document.querySelector('input[name="candidate"]:checked').value
         }
+    };
 
-        document.body.addEventListener('click', () => {
-            if (selectedParty) {
-                socket.emit('increaseScore', { party: selectedParty });
-            }
-        });
+    fetch(webAppUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(voteData),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        if (data.status === 'success') {
+            alert('ลงคะแนนเรียบร้อยแล้ว');
+        } else {
+            alert('ล็อกอินไม่สำเร็จ: ' + data.message);
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('เกิดข้อผิดพลาดในการลงคะแนน');
+    });
+});
+</script>
 
-        socket.on('updateScore', (data) => {
-            document.getElementById('score').innerText = `คะแนน: ${data.score}`;
-        });
-    </script>
 </body>
 </html>
