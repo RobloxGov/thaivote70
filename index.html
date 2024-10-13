@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คะแนนสะสมพรรค</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #partyLogo { width: 100px; height: 100px; margin-top: 20px; }
+        #score { font-size: 2em; margin-top: 20px; }
+        #chooseParty { margin: 20px; }
+    </style>
+</head>
+<body>
+    <h1 id="headerTitle">กรุณาเลือกพรรค</h1>
+    <img id="partyLogo" src="" alt="Party Logo" style="display:none;">
+    <div id="score">คะแนน: 0</div>
+    <div id="chooseParty">
+        <button onclick="selectParty('Party A', 'logoA.png')">เลือกพรรค A</button>
+        <button onclick="selectParty('Party B', 'logoB.png')">เลือกพรรค B</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        let socket = io();
+        let selectedParty = null;
+
+        function selectParty(partyName, logoSrc) {
+            selectedParty = partyName;
+            document.getElementById('headerTitle').innerText = `พรรค: ${partyName}`;
+            document.getElementById('partyLogo').src = logoSrc;
+            document.getElementById('partyLogo').style.display = 'block';
+        }
+
+        document.body.addEventListener('click', () => {
+            if (selectedParty) {
+                socket.emit('increaseScore', { party: selectedParty });
+            }
+        });
+
+        socket.on('updateScore', (data) => {
+            document.getElementById('score').innerText = `คะแนน: ${data.score}`;
+        });
+    </script>
+</body>
+</html>
